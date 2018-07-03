@@ -25,7 +25,7 @@ def main(argv):
 		for commit in range(0, num_commits):
 			subprocess.call("echo '" + curdate + str(randint(0, 1000000)) +"' > realwork.txt; git add realwork.txt; GIT_AUTHOR_DATE='" + curdate + "' GIT_COMMITTER_DATE='" + curdate + "' git commit -m 'update'; git push;", shell=True)
 			sleep(.5)
-		i += randint(0,5)
+		i += randint(0,4)
 	subprocess.call("git rm realwork.txt; git commit -m 'delete'; git push;", shell=True)
 
 if __name__ == "__main__":
