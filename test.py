@@ -1,32 +1,35 @@
-#Based on GreenHat.py
-from datetime import date, timedelta
 from random import randint
+import subprocess
 from time import sleep
 import sys
-import subprocess
-import os
 
-# returns a date string for the date that is N days before STARTDATE
-def get_date_string(n, startdate):
-	d = startdate - timedelta(days=n)
-	rtn = d.strftime("%a %b %d %X %Y %z -0400")
-	return rtn
 
-# main app
+############################
+# MAIN
+# Usage N = # of days in past you want to populate up to
+# EX: populate.py 40 will populate last 40 days randomly with commits
+############################
+
 def main(argv):
-	if len(argv) < 1 or len(argv) > 2:
-		print "Error: Bad input."
-		sys.exit(1)
-	n = int(argv[0])
-	i = 0
-	while i <= n:
-		curdate = get_date_string(i, date.today())
-		num_commits = randint(0, 2)
-		for commit in range(0, num_commits):
-			subprocess.call("echo '" + curdate + str(randint(0, 1000000)) +"' > realwork.txt; git add realwork.txt; GIT_AUTHOR_DATE='" + curdate + "' GIT_COMMITTER_DATE='" + curdate + "' git commit -m 'update'; git push;", shell=True)
-			sleep(.5)
-		i += randint(0,4)
-	subprocess.call("git rm realwork.txt; git commit -m 'delete'; git push;", shell=True)
+    n = int(argv[0])
+    while n > 0:
+        num_commits = randint(0, 1)
+        if num_commits != 0:
+            subprocess.run(["touch", "realwork.txt"])
+            with open("realwork.txt", "a") as f:
+                f.write("new line\n")
+            subprocess.run(["git", "add", "realwork.txt"])
+            subprocess.call("git commit --date=\"{} day ago \" -m \"added realwork\"".format(str(n)))
+#            subprocess.run(["git", "commit", "--date=\"%s".format(str(i)), "day", "ago\"", "-m" "\"added real work\""])
+            subprocess.run(["git", "push"])
+            sleep(.5)
+        n -= randint(0,3)
+        if (num_commits != 0):
+            subprocess.run(["git", "rm", "realwork.txt"])
+            subprocess.call("git commit --date=\"{} day ago \" -m \"deleted realwork\"".format(str(n)))
+            #subprocess.run(["git", "commit", "--date=\"%s".format(str(i)), "day", "ago\"", "-m" "\"removed real work\""])
+            subprocess.run(["git", "push"])
+
 
 if __name__ == "__main__":
-	main(sys.argv[1:])
+    main(sys.argv[1:])
